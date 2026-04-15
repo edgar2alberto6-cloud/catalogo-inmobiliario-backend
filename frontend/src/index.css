@@ -1,0 +1,28 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 🔥 SOLO carrusel principal */
+.main-swiper .swiper-slide {
+  opacity: 0.35;
+  transform: scale(0.9);
+  transition: all 0.3s ease;
+  filter: brightness(0.8);
+}
+
+.main-swiper .swiper-slide-active {
+  opacity: 1;
+  transform: scale(1);
+  filter: brightness(1);
+}
+
+/* 🔥 MINIATURAS */
+.thumbs-swiper .swiper-slide {
+  opacity: 0.4;
+  transition: all 0.3s ease;
+}
+
+.thumbs-swiper .swiper-slide-thumb-active {
+  opacity: 1;
+  transform: scale(1.05);
+}

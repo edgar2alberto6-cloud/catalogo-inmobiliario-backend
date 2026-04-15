@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.utils.html import format_html
-from .models import Property, PropertyImage
+from .models import Property, PropertyImage, Setting
 
 
 # ==============================
@@ -9,10 +9,11 @@ from .models import Property, PropertyImage
 class PropertyImageInline(admin.TabularInline):
     model = PropertyImage
     extra = 1
-    readonly_fields = ['preview']
+    fields = ('image', 'is_private', 'preview')
+    readonly_fields = ('preview',)
 
     def preview(self, obj):
-        if obj.image:
+        if obj and obj.image:
             return format_html('<img src="{}" width="100" />', obj.image.url)
         return "Sin imagen"
 
@@ -26,30 +27,28 @@ class PropertyImageInline(admin.TabularInline):
 class PropertyAdmin(admin.ModelAdmin):
     inlines = [PropertyImageInline]
 
-    # 🔒 Campos solo lectura
     readonly_fields = ['video_preview', 'created_at']
 
-    # 📋 Lista principal (tabla)
     list_display = [
         'title',
         'price',
-        'lot_price',        # 🔥 nuevo
+        'lot_price',
         'city',
         'status',
         'property_type',
         'listing_type',
+        'credit_type',
         'created_at'
     ]
 
-    # 🔍 Filtros laterales
     list_filter = [
         'status',
         'city',
         'property_type',
-        'listing_type'
+        'listing_type',
+        'credit_type'
     ]
 
-    # 🔎 Buscador
     search_fields = [
         'title',
         'description',
@@ -57,10 +56,7 @@ class PropertyAdmin(admin.ModelAdmin):
         'folio'
     ]
 
-    # 📂 Organización del formulario (MUY PRO)
     fieldsets = (
-
-        # 🧾 Información básica
         ('Información general', {
             'fields': (
                 'title',
@@ -70,33 +66,33 @@ class PropertyAdmin(admin.ModelAdmin):
             )
         }),
 
-        # 💰 Precios
-        ('Precios', {
+        ('Precios y medidas', {
             'fields': (
                 'price',
-                'lot_price',     # 🔥 nuevo
-                'total_lots'     # 🔥 nuevo
+                'lot_price',
+                'total_lots',
+                'measures',
+                'specifications'
             )
         }),
 
-        # 🏠 Clasificación
         ('Clasificación', {
             'fields': (
                 'status',
                 'property_type',
-                'listing_type'
+                'listing_type',
+                'credit_type'
             )
         }),
 
-        # 🎥 Multimedia
         ('Multimedia', {
             'fields': (
                 'video',
+                'video_url',
                 'video_preview'
             )
         }),
 
-        # 🔐 Información interna (confidencial)
         ('Información interna', {
             'fields': (
                 'folio',
@@ -106,10 +102,9 @@ class PropertyAdmin(admin.ModelAdmin):
                 'internal_notes',
                 'google_maps_link'
             ),
-            'classes': ('collapse',)  # 🔥 se puede contraer
+            'classes': ('collapse',)
         }),
 
-        # ⚙️ Sistema
         ('Sistema', {
             'fields': (
                 'created_at',
@@ -117,13 +112,25 @@ class PropertyAdmin(admin.ModelAdmin):
         }),
     )
 
-    # 🎥 Preview del video
     def video_preview(self, obj):
         if obj.video:
             return format_html(
                 '<video width="200" controls><source src="{}" type="video/mp4"></video>',
                 obj.video.url
             )
+        if obj.video_url:
+            return format_html(
+                '<a href="{}" target="_blank" rel="noopener noreferrer">Ver video</a>',
+                obj.video_url
+            )
         return "Sin video"
 
     video_preview.short_description = "Vista previa del video"
+
+
+# ==============================
+# ⚙️ CONFIGURACIÓN GENERAL
+# ==============================
+@admin.register(Setting)
+class SettingAdmin(admin.ModelAdmin):
+    list_display = ['whatsapp_number']

@@ -1,6 +1,10 @@
 from django.contrib import admin
 from django.urls import path, include
 
+# 🔥 JWT
+from rest_framework_simplejwt.views import TokenRefreshView
+from properties.jwt_views import CustomTokenObtainPairView
+
 # 📁 Configuración para servir archivos media (imágenes/videos)
 from django.conf import settings
 from django.conf.urls.static import static
@@ -10,16 +14,23 @@ urlpatterns = [
     # 🛠 Panel de administración de Django
     path('admin/', admin.site.urls),
 
-    # 🔗 API principal (todas las rutas de tu app properties)
+    # 🔐 LOGIN JWT personalizado
+    path('api/login/', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
+
+    # 🔁 REFRESH TOKEN
+    path('api/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+
+    # 🔗 API principal properties
     path('api/', include('properties.urls')),
+
+    # 👤 API de usuarios
+    path('api/', include('users.urls')),
 ]
 
 
 # ==============================
 # 📂 MEDIA FILES (SOLO DESARROLLO)
 # ==============================
-# Esto permite que puedas ver imágenes y videos desde el navegador
-# Ejemplo: http://127.0.0.1:8000/media/property_images/xxx.jpg
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
