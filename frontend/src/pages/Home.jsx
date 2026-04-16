@@ -5,6 +5,7 @@ import HomeHero from "../components/home/HomeHero";
 import HomeFilterBar from "../components/home/HomeFilterBar";
 import HomeInventoryCTA from "../components/home/HomeInventoryCTA";
 import PropertyGrid from "../components/properties/PropertyGrid";
+import heroImage from "../assets/RENDER-6.jpg";
 
 const CACHE_KEY = "cached_properties";
 
@@ -73,11 +74,9 @@ function Home() {
       setUsingCache(false);
 
       const res = await getProperties();
-
       const safeData = sanitizeProperties(res?.results);
 
       setProperties(safeData);
-
       localStorage.setItem(CACHE_KEY, JSON.stringify(safeData));
     } catch (error) {
       console.error("Error:", error);
@@ -171,8 +170,6 @@ function Home() {
     });
   }, [properties, filters]);
 
-  const heroImage = `${import.meta.env.VITE_API_URL.replace("/api", "")}/media/home_images/RENDER-6.jpg`;
-
   return (
     <div className="bg-[#f7f7f5] min-h-screen">
       <HomeHero backgroundImage={heroImage}>
@@ -205,7 +202,8 @@ function Home() {
 
         {usingCache && (
           <div className="mb-4 text-sm text-amber-600 bg-amber-50 border border-amber-200 px-4 py-2 rounded-xl">
-            Mostrando datos guardados temporalmente. Puede haber cambios recientes no reflejados.
+            Mostrando datos guardados temporalmente. Puede haber cambios
+            recientes no reflejados.
           </div>
         )}
 
