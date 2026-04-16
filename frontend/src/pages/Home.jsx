@@ -78,12 +78,10 @@ function Home() {
 
       setProperties(safeData);
 
-      // 💾 guardar cache
       localStorage.setItem(CACHE_KEY, JSON.stringify(safeData));
     } catch (error) {
       console.error("Error:", error);
 
-      // 🔥 fallback a cache
       const cached = localStorage.getItem(CACHE_KEY);
 
       if (cached) {
@@ -173,7 +171,7 @@ function Home() {
     });
   }, [properties, filters]);
 
-  const heroImage = "http://127.0.0.1:8000/media/home_images/RENDER-6.jpg";
+  const heroImage = `${import.meta.env.VITE_API_URL.replace("/api", "")}/media/home_images/RENDER-6.jpg`;
 
   return (
     <div className="bg-[#f7f7f5] min-h-screen">
@@ -205,7 +203,6 @@ function Home() {
           </p>
         </div>
 
-        {/* 🔥 aviso si está usando cache */}
         {usingCache && (
           <div className="mb-4 text-sm text-amber-600 bg-amber-50 border border-amber-200 px-4 py-2 rounded-xl">
             Mostrando datos guardados temporalmente. Puede haber cambios recientes no reflejados.

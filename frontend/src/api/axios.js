@@ -1,13 +1,12 @@
 import axios from "axios";
 import { getToken, logout } from "../utils/auth";
 
-const API = "http://127.0.0.1:8000/api";
+const API = import.meta.env.VITE_API_URL;
 
 const axiosInstance = axios.create({
   baseURL: API,
 });
 
-// 🔐 Agregar token automáticamente
 axiosInstance.interceptors.request.use(
   (config) => {
     const token = getToken();
@@ -23,17 +22,12 @@ axiosInstance.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// 🚨 Manejo global de errores
 axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
-    // Si el token expiró o es inválido
     if (error.response?.status === 401) {
       console.warn("Sesión expirada o token inválido");
-
-      logout(); // limpia localStorage
-
-      // redirige a login
+      logout();
       window.location.href = "/login";
     }
 
