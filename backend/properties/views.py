@@ -1,3 +1,6 @@
+import os
+
+from django.conf import settings
 from django.shortcuts import get_object_or_404
 from django.db.models import Q
 
@@ -114,6 +117,40 @@ class PropertyUpdateView(generics.UpdateAPIView):
     serializer_class = PropertySerializer
     permission_classes = [IsAdmin]
     parser_classes = [JSONParser, MultiPartParser, FormParser]
+
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop("partial", False)
+        instance = self.get_object()
+
+        serializer = self.get_serializer(
+            instance,
+            data=request.data,
+            partial=partial
+        )
+        serializer.is_valid(raise_exception=True)
+        property_updated = serializer.save()
+
+        print("=== DEBUG PROPERTY UPDATE ===")
+        print("MEDIA_ROOT:", settings.MEDIA_ROOT)
+        print("MEDIA_URL:", settings.MEDIA_URL)
+
+        if property_updated.video:
+            print("Saved video name:", property_updated.video.name)
+            try:
+                print("Saved video path:", property_updated.video.path)
+                print(
+                    "File exists after save:",
+                    os.path.exists(property_updated.video.path)
+                )
+            except Exception as e:
+                print("Error getting video path:", str(e))
+        else:
+            print("No video present after save.")
+
+        print("FILES received:", request.FILES)
+        print("============================")
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
@@ -270,7 +307,24 @@ class PropertyImageUploadView(generics.CreateAPIView):
 
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        serializer.save(property=property_obj)
+        property_image = serializer.save(property=property_obj)
+
+        print("=== DEBUG IMAGE UPLOAD ===")
+        print("MEDIA_ROOT:", settings.MEDIA_ROOT)
+        print("MEDIA_URL:", settings.MEDIA_URL)
+        print("Saved image name:", property_image.image.name)
+
+        try:
+            print("Saved image path:", property_image.image.path)
+            print(
+                "File exists after save:",
+                os.path.exists(property_image.image.path)
+            )
+        except Exception as e:
+            print("Error getting image path:", str(e))
+
+        print("FILES received:", request.FILES)
+        print("==========================")
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
