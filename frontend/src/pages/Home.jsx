@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getProperties } from "../api/properties";
-import HomeHero from "../components/home/HomeHero";
-import HomeFilterBar from "../components/home/HomeFilterBar";
-import HomeInventoryCTA from "../components/home/HomeInventoryCTA";
+import HomeHero from "../components/Home/HomeHero";
+import HomeFilterBar from "../components/Home/HomeFilterBar";
+import HomeInventoryCTA from "../components/Home/HomeInventoryCTA";
 import PropertyGrid from "../components/properties/PropertyGrid";
 import heroImage from "../assets/RENDER-6.jpg";
 
@@ -202,8 +202,7 @@ function Home() {
 
         {usingCache && (
           <div className="mb-4 text-sm text-amber-600 bg-amber-50 border border-amber-200 px-4 py-2 rounded-xl">
-            Mostrando datos guardados temporalmente. Puede haber cambios
-            recientes no reflejados.
+            Mostrando datos guardados temporalmente. Puede haber cambios recientes no reflejados.
           </div>
         )}
 
