@@ -1,13 +1,11 @@
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, include, re_path
+from django.conf import settings
+from django.views.static import serve
 
 # 🔥 JWT
 from rest_framework_simplejwt.views import TokenRefreshView
 from properties.jwt_views import CustomTokenObtainPairView
-
-# 📁 Configuración para servir archivos media (imágenes/videos)
-from django.conf import settings
-from django.conf.urls.static import static
 
 
 urlpatterns = [
@@ -25,9 +23,9 @@ urlpatterns = [
 
     # 👤 API de usuarios
     path('api/', include('users.urls')),
-]
 
-# ==============================
-# 📂 MEDIA FILES
-# ==============================
-urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    # 📂 MEDIA FILES EN PRODUCCIÓN
+    re_path(r'^media/(?P<path>.*)$', serve, {
+        'document_root': settings.MEDIA_ROOT
+    }),
+]
