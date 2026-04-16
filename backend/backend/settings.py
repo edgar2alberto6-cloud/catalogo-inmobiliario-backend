@@ -181,14 +181,16 @@ default_cors_origins = ",".join([
     "http://localhost:5173",
     "http://127.0.0.1:5173",
     "https://catalogo-inmobiliario-backend.vercel.app",
-    "https://catalogo-inmobiliario-git-e2969f-edgar2alberto6-3238s-projects.vercel.app",
-    "https://catalogo-inmobiliario-backend-n7tsftgya.vercel.app",
 ])
 
 CORS_ALLOWED_ORIGINS = [
     origin.strip()
     for origin in os.getenv("CORS_ALLOWED_ORIGINS", default_cors_origins).split(",")
     if origin.strip()
+]
+
+CORS_ALLOWED_ORIGIN_REGEXES = [
+    r"^https://.*\.vercel\.app$",
 ]
 
 # ==============================
