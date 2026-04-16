@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getProperties } from "../api/properties";
-import HomeHero from "../components/Home/HomeHero";
-import HomeFilterBar from "../components/Home/HomeFilterBar";
-import HomeInventoryCTA from "../components/Home/HomeInventoryCTA";
+import HomeHero from "../components/home/HomeHero";
+import HomeFilterBar from "../components/home/HomeFilterBar";
+import HomeInventoryCTA from "../components/home/HomeInventoryCTA";
 import PropertyGrid from "../components/properties/PropertyGrid";
 import heroImage from "../assets/RENDER-6.jpg";
 
