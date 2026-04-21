@@ -7,15 +7,18 @@ import HomeInventoryCTA from "../components/Home/HomeInventoryCTA";
 import PropertyGrid from "../components/properties/PropertyGrid";
 import heroImage from "../assets/RENDER-6.jpg";
 
-const CACHE_KEY = "cached_properties";
-
 function Home() {
   const navigate = useNavigate();
   const inventoryRef = useRef(null);
 
   const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [usingCache, setUsingCache] = useState(false);
+
+  // 🔥 PAGINACIÓN
+  const [nextUrl, setNextUrl] = useState(null);
+  const [prevUrl, setPrevUrl] = useState(null);
+  const [count, setCount] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
 
   const [filters, setFilters] = useState({
     listing_type: "",
@@ -62,39 +65,54 @@ function Home() {
       property_type: p?.property_type || "property",
       listing_type: p?.listing_type || "sale",
       credit_type: p?.credit_type || "none",
-      credit_type_display: p?.credit_type_display || "",
-      lot_price: p?.lot_price || null,
       images: Array.isArray(p?.images) ? p.images : [],
     }));
   };
 
-  const fetchProperties = async () => {
+  // 🔥 FETCH PRINCIPAL (con soporte URL dinámica)
+  const fetchProperties = async (url = null) => {
     try {
       setLoading(true);
-      setUsingCache(false);
 
-      const res = await getProperties();
+      let res;
+
+      if (url) {
+        res = await fetch(url).then((r) => r.json());
+      } else {
+        res = await getProperties();
+      }
 
       const data = Array.isArray(res) ? res : res?.results || [];
-      const safeData = sanitizeProperties(data);
 
-      setProperties(safeData);
-      localStorage.setItem(CACHE_KEY, JSON.stringify(safeData));
+      setProperties(sanitizeProperties(data));
+
+      // 🔥 PAGINACIÓN
+      setNextUrl(res?.next);
+      setPrevUrl(res?.previous);
+      setCount(res?.count || data.length);
+
+      // detectar página actual
+      if (url) {
+        const match = url.match(/page=(\d+)/);
+        if (match) setCurrentPage(Number(match[1]));
+      } else {
+        setCurrentPage(1);
+      }
+
     } catch (error) {
       console.error("Error:", error);
-
-      const cached = localStorage.getItem(CACHE_KEY);
-
-      if (cached) {
-        console.warn("Usando cache local");
-        setProperties(JSON.parse(cached));
-        setUsingCache(true);
-      } else {
-        setProperties([]);
-      }
+      setProperties([]);
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleNext = () => {
+    if (nextUrl) fetchProperties(nextUrl);
+  };
+
+  const handlePrev = () => {
+    if (prevUrl) fetchProperties(prevUrl);
   };
 
   const handleFilterChange = (e) => {
@@ -185,6 +203,8 @@ function Home() {
       <HomeInventoryCTA onClick={scrollToInventory} />
 
       <section ref={inventoryRef} className="max-w-7xl mx-auto px-4 pb-12">
+
+        {/* HEADER */}
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-6">
           <div>
             <p className="text-sm uppercase tracking-[0.2em] text-[#3D7754] font-semibold">
@@ -197,27 +217,46 @@ function Home() {
 
           <p className="text-gray-500">
             {loading
-              ? "Cargando propiedades..."
-              : `${filteredProperties.length} propiedades encontradas`}
+              ? "Cargando..."
+              : `${count} propiedades totales`}
           </p>
         </div>
 
-        {usingCache && (
-          <div className="mb-4 text-sm text-amber-600 bg-amber-50 border border-amber-200 px-4 py-2 rounded-xl">
-            Mostrando datos guardados temporalmente. Puede haber cambios recientes no reflejados.
-          </div>
-        )}
-
+        {/* GRID */}
         {loading ? (
-          <div className="bg-white rounded-2xl shadow-sm p-10 text-center text-gray-500">
-            Cargando propiedades...
-          </div>
+          <div className="text-center py-10">Cargando...</div>
         ) : (
           <PropertyGrid
             properties={filteredProperties}
             onCardClick={handleCardClick}
           />
         )}
+
+        {/* 🔥 PAGINACIÓN */}
+        <div className="flex justify-center items-center gap-4 mt-8">
+
+          <button
+            onClick={handlePrev}
+            disabled={!prevUrl}
+            className="px-4 py-2 rounded-lg border disabled:opacity-40"
+          >
+            Anterior
+          </button>
+
+          <span className="text-sm text-gray-600">
+            Página {currentPage}
+          </span>
+
+          <button
+            onClick={handleNext}
+            disabled={!nextUrl}
+            className="px-4 py-2 rounded-lg border disabled:opacity-40"
+          >
+            Siguiente
+          </button>
+
+        </div>
+
       </section>
     </div>
   );
