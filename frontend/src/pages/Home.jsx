@@ -74,7 +74,9 @@ function Home() {
       setUsingCache(false);
 
       const res = await getProperties();
-      const safeData = sanitizeProperties(res?.results);
+
+      const data = Array.isArray(res) ? res : res?.results || [];
+      const safeData = sanitizeProperties(data);
 
       setProperties(safeData);
       localStorage.setItem(CACHE_KEY, JSON.stringify(safeData));
