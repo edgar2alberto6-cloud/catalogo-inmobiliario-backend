@@ -31,6 +31,11 @@ function PropertyFormClassificationSection({ formData, onChange }) {
             <option value="house">Casa</option>
             <option value="land">Terreno</option>
             <option value="apartment">Departamento</option>
+
+            {/* 🔥 NUEVOS TIPOS */}
+            <option value="lots">Lotes</option>
+            <option value="hectares">Hectáreas</option>
+            <option value="ranch">Rancho</option>
           </select>
         </div>
 

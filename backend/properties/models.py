@@ -37,6 +37,9 @@ class Property(models.Model):
         ('house', 'Casa'),
         ('land', 'Terreno'),
         ('apartment', 'Departamento'),
+        ('lots', 'Lotes'),
+        ('hectares', 'Hectáreas'),
+        ('ranch', 'Rancho'),
     ]
 
     property_type = models.CharField(
