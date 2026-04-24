@@ -1,6 +1,9 @@
 function PropertySidebar({ property, whatsapp }) {
   if (!property) return null;
 
+  const isLots = property.property_type === "lots";
+  const isHectares = property.property_type === "hectares";
+
   const formatPrice = (value) => {
     const number = Number(value);
 
@@ -43,9 +46,15 @@ function PropertySidebar({ property, whatsapp }) {
         {formatPrice(property.price)}
       </p>
 
-      {property.lot_price ? (
+      {isLots && property.lot_price ? (
         <p className="text-green-600 font-semibold">
           Desde {formatPrice(property.lot_price)} por lote
+        </p>
+      ) : null}
+
+      {isHectares && property.hectare_price ? (
+        <p className="text-green-600 font-semibold">
+          Desde {formatPrice(property.hectare_price)} por hectárea
         </p>
       ) : null}
 

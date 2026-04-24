@@ -54,10 +54,12 @@ function PropertyCreate() {
     description: "",
     price: "",
     lot_price: "",
+    hectare_price: "",
     location: "",
     city: "",
     measures: "",
     total_lots: "",
+    total_hectares: "",
     specifications: "",
     property_type: "house",
     listing_type: "sale",
@@ -80,7 +82,7 @@ function PropertyCreate() {
 
   const [modal, setModal] = useState({
     open: false,
-    type: "info", // success | error | warning | info
+    type: "info",
     title: "",
     message: "",
     redirectTo: null,
@@ -237,6 +239,38 @@ function PropertyCreate() {
       return;
     }
 
+    if (name === "property_type") {
+      setFormData((prev) => {
+        if (value === "lots") {
+          return {
+            ...prev,
+            property_type: value,
+            hectare_price: "",
+            total_hectares: "",
+          };
+        }
+
+        if (value === "hectares") {
+          return {
+            ...prev,
+            property_type: value,
+            lot_price: "",
+            total_lots: "",
+          };
+        }
+
+        return {
+          ...prev,
+          property_type: value,
+          lot_price: "",
+          total_lots: "",
+          hectare_price: "",
+          total_hectares: "",
+        };
+      });
+      return;
+    }
+
     setFormData((prev) => ({
       ...prev,
       [name]: value,
@@ -317,10 +351,14 @@ function PropertyCreate() {
         description: formData.description,
         price: formData.price === "" ? null : formData.price,
         lot_price: formData.lot_price === "" ? null : formData.lot_price,
+        hectare_price:
+          formData.hectare_price === "" ? null : formData.hectare_price,
         location: formData.location,
         city: formData.city,
         measures: formData.measures,
         total_lots: formData.total_lots === "" ? null : formData.total_lots,
+        total_hectares:
+          formData.total_hectares === "" ? null : formData.total_hectares,
         specifications: formData.specifications,
         property_type: formData.property_type,
         listing_type: formData.listing_type,

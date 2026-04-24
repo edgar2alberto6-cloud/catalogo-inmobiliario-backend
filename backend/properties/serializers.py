@@ -83,6 +83,8 @@ class PropertySerializer(serializers.ModelSerializer):
         extra_kwargs = {
             'lot_price': {'required': False, 'allow_null': True},
             'total_lots': {'required': False, 'allow_null': True},
+            'hectare_price': {'required': False, 'allow_null': True},
+            'total_hectares': {'required': False, 'allow_null': True},
             'folio': {'required': False, 'allow_blank': True, 'allow_null': True},
             'owner_name': {'required': False, 'allow_blank': True, 'allow_null': True},
             'google_maps_link': {'required': False, 'allow_blank': True, 'allow_null': True},
@@ -104,7 +106,12 @@ class PropertySerializer(serializers.ModelSerializer):
             data = dict(data)
 
         # 🔧 convertir strings vacíos a null en campos numéricos opcionales
-        nullable_numeric_fields = ['lot_price', 'total_lots']
+        nullable_numeric_fields = [
+            'lot_price',
+            'total_lots',
+            'hectare_price',
+            'total_hectares',
+        ]
 
         for field in nullable_numeric_fields:
             if field in data and data.get(field) == '':

@@ -18,6 +18,22 @@ class Property(models.Model):
     # 🔢 Cantidad de lotes
     total_lots = models.IntegerField(blank=True, null=True)
 
+    # 🌱 Precio por hectárea
+    hectare_price = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        blank=True,
+        null=True
+    )
+
+    # 🌱 Cantidad de hectáreas
+    total_hectares = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        blank=True,
+        null=True
+    )
+
     location = models.CharField(max_length=255)
     city = models.CharField(max_length=100)
 

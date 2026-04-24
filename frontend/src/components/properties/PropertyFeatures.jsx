@@ -2,6 +2,22 @@ function PropertyFeatures({ property }) {
   if (!property) return null;
 
   const safeProperty = property || {};
+  const isLots = safeProperty.property_type === "lots";
+  const isHectares = safeProperty.property_type === "hectares";
+
+  const hasValue = (value) => value !== null && value !== undefined && value !== "";
+
+  const formatCurrency = (value) => {
+    const numericValue = Number(value);
+
+    if (Number.isNaN(numericValue)) return value;
+
+    return new Intl.NumberFormat("es-MX", {
+      style: "currency",
+      currency: "MXN",
+      maximumFractionDigits: 2,
+    }).format(numericValue);
+  };
 
   const features = [
     safeProperty.property_type_display
@@ -19,8 +35,31 @@ function PropertyFeatures({ property }) {
     safeProperty.measures
       ? { icon: "📏", label: "Medidas", value: safeProperty.measures }
       : null,
-    safeProperty.total_lots
+
+    isLots && hasValue(safeProperty.total_lots)
       ? { icon: "🧱", label: "Lotes", value: `${safeProperty.total_lots} lotes` }
+      : null,
+    isLots && hasValue(safeProperty.lot_price)
+      ? {
+          icon: "💰",
+          label: "Precio por lote",
+          value: formatCurrency(safeProperty.lot_price),
+        }
+      : null,
+
+    isHectares && hasValue(safeProperty.total_hectares)
+      ? {
+          icon: "🌱",
+          label: "Hectáreas",
+          value: `${safeProperty.total_hectares} ha`,
+        }
+      : null,
+    isHectares && hasValue(safeProperty.hectare_price)
+      ? {
+          icon: "💵",
+          label: "Precio por hectárea",
+          value: formatCurrency(safeProperty.hectare_price),
+        }
       : null,
   ].filter(Boolean);
 

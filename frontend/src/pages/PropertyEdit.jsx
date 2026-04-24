@@ -58,10 +58,12 @@ function PropertyEdit() {
     description: "",
     price: "",
     lot_price: "",
+    hectare_price: "",
     location: "",
     city: "",
     measures: "",
     total_lots: "",
+    total_hectares: "",
     specifications: "",
     property_type: "",
     listing_type: "",
@@ -211,10 +213,12 @@ function PropertyEdit() {
         description: data.description ?? "",
         price: data.price ?? "",
         lot_price: data.lot_price ?? "",
+        hectare_price: data.hectare_price ?? "",
         location: data.location ?? "",
         city: data.city ?? "",
         measures: data.measures ?? "",
         total_lots: data.total_lots ?? "",
+        total_hectares: data.total_hectares ?? "",
         specifications: data.specifications ?? "",
         property_type: data.property_type ?? "",
         listing_type: data.listing_type ?? "",
@@ -283,6 +287,38 @@ function PropertyEdit() {
       return;
     }
 
+    if (name === "property_type") {
+      setFormData((prev) => {
+        if (value === "lots") {
+          return {
+            ...prev,
+            property_type: value,
+            hectare_price: "",
+            total_hectares: "",
+          };
+        }
+
+        if (value === "hectares") {
+          return {
+            ...prev,
+            property_type: value,
+            lot_price: "",
+            total_lots: "",
+          };
+        }
+
+        return {
+          ...prev,
+          property_type: value,
+          lot_price: "",
+          total_lots: "",
+          hectare_price: "",
+          total_hectares: "",
+        };
+      });
+      return;
+    }
+
     setFormData((prev) => ({
       ...prev,
       [name]: value,
@@ -331,10 +367,14 @@ function PropertyEdit() {
         description: formData.description,
         price: formData.price === "" ? null : formData.price,
         lot_price: formData.lot_price === "" ? null : formData.lot_price,
+        hectare_price:
+          formData.hectare_price === "" ? null : formData.hectare_price,
         location: formData.location,
         city: formData.city,
         measures: formData.measures,
         total_lots: formData.total_lots === "" ? null : formData.total_lots,
+        total_hectares:
+          formData.total_hectares === "" ? null : formData.total_hectares,
         specifications: formData.specifications,
         property_type: formData.property_type,
         listing_type: formData.listing_type,
