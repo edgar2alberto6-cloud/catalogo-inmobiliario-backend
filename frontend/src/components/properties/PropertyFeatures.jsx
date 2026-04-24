@@ -5,7 +5,8 @@ function PropertyFeatures({ property }) {
   const isLots = safeProperty.property_type === "lots";
   const isHectares = safeProperty.property_type === "hectares";
 
-  const hasValue = (value) => value !== null && value !== undefined && value !== "";
+  const hasValue = (value) =>
+    value !== null && value !== undefined && value !== "";
 
   const formatCurrency = (value) => {
     const numericValue = Number(value);
@@ -19,19 +20,39 @@ function PropertyFeatures({ property }) {
     }).format(numericValue);
   };
 
+  const propertyTypeLabel = {
+    house: "Casa",
+    land: "Terreno",
+    apartment: "Departamento",
+    lots: "Lotes",
+    hectares: "Hectáreas",
+    ranch: "Rancho",
+  };
+
   const features = [
-    safeProperty.property_type_display
-      ? { icon: "🏠", label: "Tipo", value: safeProperty.property_type_display }
+    safeProperty.property_type_display || safeProperty.property_type
+      ? {
+          icon: "🏠",
+          label: "Tipo",
+          value:
+            safeProperty.property_type_display ||
+            propertyTypeLabel[safeProperty.property_type] ||
+            safeProperty.property_type,
+        }
       : null,
+
     safeProperty.listing_type_display
       ? { icon: "📌", label: "Operación", value: safeProperty.listing_type_display }
       : null,
+
     safeProperty.status_display
       ? { icon: "📊", label: "Estado", value: safeProperty.status_display }
       : null,
+
     safeProperty.credit_type_display
       ? { icon: "🏦", label: "Crédito", value: safeProperty.credit_type_display }
       : null,
+
     safeProperty.measures
       ? { icon: "📏", label: "Medidas", value: safeProperty.measures }
       : null,
@@ -39,6 +60,7 @@ function PropertyFeatures({ property }) {
     isLots && hasValue(safeProperty.total_lots)
       ? { icon: "🧱", label: "Lotes", value: `${safeProperty.total_lots} lotes` }
       : null,
+
     isLots && hasValue(safeProperty.lot_price)
       ? {
           icon: "💰",
@@ -54,6 +76,7 @@ function PropertyFeatures({ property }) {
           value: `${safeProperty.total_hectares} ha`,
         }
       : null,
+
     isHectares && hasValue(safeProperty.hectare_price)
       ? {
           icon: "💵",

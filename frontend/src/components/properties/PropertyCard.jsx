@@ -20,6 +20,9 @@ const propertyTypeLabel = {
   house: "Casa",
   land: "Terreno",
   apartment: "Departamento",
+  lots: "Lotes",
+  hectares: "Hectáreas",
+  ranch: "Rancho",
 };
 
 const listingTypeLabel = {
@@ -35,6 +38,8 @@ const statusLabel = {
 
 const PropertyCard = ({ property = {}, onClick }) => {
   const safeProperty = property || {};
+  const isLots = safeProperty.property_type === "lots";
+  const isHectares = safeProperty.property_type === "hectares";
 
   const image =
     Array.isArray(safeProperty.images) &&
@@ -51,13 +56,19 @@ const PropertyCard = ({ property = {}, onClick }) => {
       : safeProperty.location || safeProperty.city || "Ubicación no disponible";
 
   const listingType =
+    safeProperty.listing_type_display ||
     listingTypeLabel[safeProperty.listing_type] ||
     safeProperty.listing_type ||
     "Disponible";
 
-  const status = statusLabel[safeProperty.status] || safeProperty.status || "Disponible";
+  const status =
+    safeProperty.status_display ||
+    statusLabel[safeProperty.status] ||
+    safeProperty.status ||
+    "Disponible";
 
   const propertyType =
+    safeProperty.property_type_display ||
     propertyTypeLabel[safeProperty.property_type] ||
     safeProperty.property_type ||
     "Propiedad";
@@ -104,9 +115,7 @@ const PropertyCard = ({ property = {}, onClick }) => {
           {title}
         </h2>
 
-        <p className="text-sm text-gray-500 line-clamp-1">
-          {locationText}
-        </p>
+        <p className="text-sm text-gray-500 line-clamp-1">{locationText}</p>
 
         <p className="text-2xl font-bold text-[#3D7754]">
           {formatPrice(safeProperty.price)}
@@ -124,9 +133,15 @@ const PropertyCard = ({ property = {}, onClick }) => {
             )}
         </div>
 
-        {safeProperty.lot_price ? (
+        {isLots && safeProperty.lot_price ? (
           <p className="text-sm text-gray-400">
             Precio por lote: {formatPrice(safeProperty.lot_price)}
+          </p>
+        ) : null}
+
+        {isHectares && safeProperty.hectare_price ? (
+          <p className="text-sm text-gray-400">
+            Precio por hectárea: {formatPrice(safeProperty.hectare_price)}
           </p>
         ) : null}
       </div>
