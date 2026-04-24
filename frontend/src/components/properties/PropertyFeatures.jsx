@@ -20,6 +20,19 @@ function PropertyFeatures({ property }) {
     }).format(numericValue);
   };
 
+  const formatHectares = (value) => {
+    const numericValue = Number(value);
+
+    if (Number.isNaN(numericValue)) return value;
+
+    const formatted = new Intl.NumberFormat("es-MX", {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 2,
+    }).format(numericValue);
+
+    return `${formatted} ${numericValue === 1 ? "hectárea" : "hectáreas"}`;
+  };
+
   const propertyTypeLabel = {
     house: "Casa",
     land: "Terreno",
@@ -73,7 +86,7 @@ function PropertyFeatures({ property }) {
       ? {
           icon: "🌱",
           label: "Hectáreas",
-          value: `${safeProperty.total_hectares} ha`,
+          value: formatHectares(safeProperty.total_hectares),
         }
       : null,
 
