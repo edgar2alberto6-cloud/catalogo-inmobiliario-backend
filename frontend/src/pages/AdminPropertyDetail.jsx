@@ -40,6 +40,7 @@ function AdminPropertyDetail() {
             propertyData?.description || "Información no disponible por el momento.",
           price: propertyData?.price || null,
           lot_price: propertyData?.lot_price || null,
+          hectare_price: propertyData?.hectare_price || null,
           property_type: propertyData?.property_type || "property",
           property_type_display:
             propertyData?.property_type_display || "Propiedad",
@@ -57,6 +58,7 @@ function AdminPropertyDetail() {
           measures: propertyData?.measures || "",
           specifications: propertyData?.specifications || "",
           total_lots: propertyData?.total_lots || null,
+          total_hectares: propertyData?.total_hectares || null,
           google_maps_link: propertyData?.google_maps_link || "",
           owner_name: propertyData?.owner_name || "",
           owner_phone: propertyData?.owner_phone || "",
