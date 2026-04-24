@@ -33,6 +33,7 @@ class PropertyAdmin(admin.ModelAdmin):
         'title',
         'price',
         'lot_price',
+        'hectare_price',
         'city',
         'status',
         'property_type',
@@ -71,6 +72,8 @@ class PropertyAdmin(admin.ModelAdmin):
                 'price',
                 'lot_price',
                 'total_lots',
+                'hectare_price',
+                'total_hectares',
                 'measures',
                 'specifications'
             )
