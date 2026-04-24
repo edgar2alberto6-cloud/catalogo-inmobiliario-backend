@@ -494,12 +494,12 @@ function PropertyCreate() {
               onChange={handleChange}
             />
 
-            <PropertyFormPricingSection
+            <PropertyFormClassificationSection
               formData={formData}
               onChange={handleChange}
             />
 
-            <PropertyFormClassificationSection
+            <PropertyFormPricingSection
               formData={formData}
               onChange={handleChange}
             />
