@@ -69,6 +69,8 @@ function PropertyEdit() {
     listing_type: "",
     status: "",
     credit_type: "",
+    custom_financing: false,
+    custom_financing_details: "",
     folio: "",
     owner_name: "",
     owner_phone: "",
@@ -167,6 +169,7 @@ function PropertyEdit() {
       "location",
       "city",
       "owner_phone",
+      "custom_financing_details",
       "video",
       "video_url",
       "non_field_errors",
@@ -179,6 +182,7 @@ function PropertyEdit() {
       location: "Ubicación",
       city: "Ciudad",
       owner_phone: "Teléfono",
+      custom_financing_details: "Financiamiento adicional",
       video: "Video",
       video_url: "URL del video",
       non_field_errors: "Error",
@@ -224,6 +228,8 @@ function PropertyEdit() {
         listing_type: data.listing_type ?? "",
         status: data.status ?? "",
         credit_type: data.credit_type ?? "",
+        custom_financing: data.custom_financing ?? false,
+        custom_financing_details: data.custom_financing_details ?? "",
         folio: data.folio ?? "",
         owner_name: data.owner_name ?? "",
         owner_phone: data.owner_phone ?? "",
@@ -277,7 +283,7 @@ function PropertyEdit() {
   };
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value, type, checked } = e.target;
 
     if (name === "owner_phone") {
       setFormData((prev) => ({
@@ -319,9 +325,20 @@ function PropertyEdit() {
       return;
     }
 
+    if (name === "custom_financing") {
+      setFormData((prev) => ({
+        ...prev,
+        custom_financing: checked,
+        custom_financing_details: checked
+          ? prev.custom_financing_details
+          : "",
+      }));
+      return;
+    }
+
     setFormData((prev) => ({
       ...prev,
-      [name]: value,
+      [name]: type === "checkbox" ? checked : value,
     }));
   };
 
@@ -380,6 +397,10 @@ function PropertyEdit() {
         listing_type: formData.listing_type,
         status: formData.status,
         credit_type: formData.credit_type,
+        custom_financing: formData.custom_financing,
+        custom_financing_details: formData.custom_financing
+          ? (formData.custom_financing_details || "").trim() || null
+          : null,
         folio: formData.folio,
         owner_name: formData.owner_name,
         owner_phone: phoneValidation.value,
@@ -394,6 +415,9 @@ function PropertyEdit() {
       setFormData((prev) => ({
         ...prev,
         owner_phone: updatedProperty.owner_phone ?? "",
+        custom_financing: updatedProperty.custom_financing ?? false,
+        custom_financing_details:
+          updatedProperty.custom_financing_details ?? "",
       }));
 
       openModal({
@@ -416,7 +440,8 @@ function PropertyEdit() {
         openModal({
           type: "error",
           title: "Error de conexión",
-          message: "No se pudieron guardar los cambios por un problema del servidor o de conexión.",
+          message:
+            "No se pudieron guardar los cambios por un problema del servidor o de conexión.",
         });
       }
     } finally {
@@ -754,7 +779,9 @@ function PropertyEdit() {
                     </a>
                   </div>
                 ) : (
-                  <p className="text-gray-500">No hay video subido actualmente.</p>
+                  <p className="text-gray-500">
+                    No hay video subido actualmente.
+                  </p>
                 )}
               </div>
 
@@ -790,7 +817,10 @@ function PropertyEdit() {
                 )}
               </div>
 
-              <form onSubmit={handleVideoSave} className="border-t pt-6 space-y-4">
+              <form
+                onSubmit={handleVideoSave}
+                className="border-t pt-6 space-y-4"
+              >
                 <h3 className="text-lg font-semibold">Actualizar multimedia</h3>
 
                 <div>

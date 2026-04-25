@@ -39,6 +39,7 @@ class PropertyAdmin(admin.ModelAdmin):
         'property_type',
         'listing_type',
         'credit_type',
+        'custom_financing',
         'created_at'
     ]
 
@@ -47,14 +48,16 @@ class PropertyAdmin(admin.ModelAdmin):
         'city',
         'property_type',
         'listing_type',
-        'credit_type'
+        'credit_type',
+        'custom_financing'
     ]
 
     search_fields = [
         'title',
         'description',
         'city',
-        'folio'
+        'folio',
+        'custom_financing_details'
     ]
 
     fieldsets = (
@@ -84,7 +87,9 @@ class PropertyAdmin(admin.ModelAdmin):
                 'status',
                 'property_type',
                 'listing_type',
-                'credit_type'
+                'credit_type',
+                'custom_financing',
+                'custom_financing_details'
             )
         }),
 

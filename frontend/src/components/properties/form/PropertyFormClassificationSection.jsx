@@ -68,6 +68,35 @@ function PropertyFormClassificationSection({ formData, onChange }) {
             <option value="both">INFONAVIT y FOVISSSTE</option>
           </select>
         </div>
+
+        <div className="md:col-span-2">
+          <label className="inline-flex items-center gap-2 text-sm font-medium">
+            <input
+              type="checkbox"
+              name="custom_financing"
+              checked={!!formData.custom_financing}
+              onChange={onChange}
+              className="h-4 w-4"
+            />
+            Tiene financiamiento adicional o facilidades de pago
+          </label>
+        </div>
+
+        {formData.custom_financing && (
+          <div className="md:col-span-2">
+            <label className="block text-sm font-medium mb-1">
+              Detalle del financiamiento adicional
+            </label>
+            <input
+              type="text"
+              name="custom_financing_details"
+              value={formData.custom_financing_details || ""}
+              onChange={onChange}
+              placeholder="Ej. Enganche + mensualidades, financiamiento directo, 3 pagos..."
+              className="w-full border rounded-xl px-4 py-2 bg-white"
+            />
+          </div>
+        )}
       </div>
     </div>
   );

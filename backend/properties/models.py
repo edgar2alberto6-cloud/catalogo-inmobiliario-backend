@@ -88,6 +88,15 @@ class Property(models.Model):
         default=CreditType.NONE
     )
 
+    # 💳 FINANCIAMIENTO ADICIONAL / FACILIDADES DE PAGO
+    custom_financing = models.BooleanField(default=False)
+
+    custom_financing_details = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True
+    )
+
     # 🎥 VIDEO
     video = models.FileField(upload_to='property_videos/', blank=True, null=True)
     video_url = models.URLField(blank=True, null=True)

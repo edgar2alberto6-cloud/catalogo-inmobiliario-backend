@@ -94,6 +94,7 @@ class PropertySerializer(serializers.ModelSerializer):
             'internal_notes': {'required': False, 'allow_blank': True, 'allow_null': True},
             'video': {'required': False, 'allow_null': True},
             'video_url': {'required': False, 'allow_blank': True, 'allow_null': True},
+            'custom_financing_details': {'required': False, 'allow_blank': True, 'allow_null': True},
         }
 
     def to_internal_value(self, data):
@@ -135,7 +136,27 @@ class PropertySerializer(serializers.ModelSerializer):
                 if data['owner_phone'] == '':
                     data['owner_phone'] = None
 
+        # 🔧 normalizar detalle de financiamiento adicional
+        if 'custom_financing_details' in data:
+            if data.get('custom_financing_details') is None:
+                data['custom_financing_details'] = None
+            else:
+                data['custom_financing_details'] = str(data.get('custom_financing_details')).strip()
+                if data['custom_financing_details'] == '':
+                    data['custom_financing_details'] = None
+
         return super().to_internal_value(data)
+
+    def validate(self, attrs):
+        custom_financing = attrs.get(
+            'custom_financing',
+            getattr(self.instance, 'custom_financing', False) if self.instance else False
+        )
+
+        if not custom_financing:
+            attrs['custom_financing_details'] = None
+
+        return attrs
 
     def validate_folio(self, value):
         if value is None:

@@ -65,6 +65,8 @@ function PropertyCreate() {
     listing_type: "sale",
     status: "available",
     credit_type: "none",
+    custom_financing: false,
+    custom_financing_details: "",
     folio: "",
     owner_name: "",
     owner_phone: "",
@@ -162,6 +164,7 @@ function PropertyCreate() {
       "location",
       "city",
       "owner_phone",
+      "custom_financing_details",
       "video",
       "video_url",
       "non_field_errors",
@@ -174,6 +177,7 @@ function PropertyCreate() {
       location: "Ubicación",
       city: "Ciudad",
       owner_phone: "Teléfono",
+      custom_financing_details: "Financiamiento adicional",
       video: "Video",
       video_url: "URL del video",
       non_field_errors: "Error",
@@ -229,7 +233,7 @@ function PropertyCreate() {
   };
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value, type, checked } = e.target;
 
     if (name === "owner_phone") {
       setFormData((prev) => ({
@@ -271,9 +275,20 @@ function PropertyCreate() {
       return;
     }
 
+    if (name === "custom_financing") {
+      setFormData((prev) => ({
+        ...prev,
+        custom_financing: checked,
+        custom_financing_details: checked
+          ? prev.custom_financing_details
+          : "",
+      }));
+      return;
+    }
+
     setFormData((prev) => ({
       ...prev,
-      [name]: value,
+      [name]: type === "checkbox" ? checked : value,
     }));
   };
 
@@ -364,6 +379,10 @@ function PropertyCreate() {
         listing_type: formData.listing_type,
         status: formData.status,
         credit_type: formData.credit_type,
+        custom_financing: formData.custom_financing,
+        custom_financing_details: formData.custom_financing
+          ? (formData.custom_financing_details || "").trim() || null
+          : null,
         folio: formData.folio,
         owner_name: formData.owner_name,
         owner_phone: phoneValidation.value,
