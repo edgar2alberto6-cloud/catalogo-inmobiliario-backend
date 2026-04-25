@@ -42,6 +42,12 @@ function PropertyFeatures({ property }) {
     ranch: "Rancho",
   };
 
+  const customFinancingValue =
+    typeof safeProperty.custom_financing_details === "string" &&
+    safeProperty.custom_financing_details.trim()
+      ? safeProperty.custom_financing_details.trim()
+      : "Facilidades de pago disponibles";
+
   const features = [
     safeProperty.property_type_display || safeProperty.property_type
       ? {
@@ -55,23 +61,51 @@ function PropertyFeatures({ property }) {
       : null,
 
     safeProperty.listing_type_display
-      ? { icon: "📌", label: "Operación", value: safeProperty.listing_type_display }
+      ? {
+          icon: "📌",
+          label: "Operación",
+          value: safeProperty.listing_type_display,
+        }
       : null,
 
     safeProperty.status_display
-      ? { icon: "📊", label: "Estado", value: safeProperty.status_display }
+      ? {
+          icon: "📊",
+          label: "Estado",
+          value: safeProperty.status_display,
+        }
       : null,
 
     safeProperty.credit_type_display
-      ? { icon: "🏦", label: "Crédito", value: safeProperty.credit_type_display }
+      ? {
+          icon: "🏦",
+          label: "Crédito",
+          value: safeProperty.credit_type_display,
+        }
+      : null,
+
+    safeProperty.custom_financing
+      ? {
+          icon: "💳",
+          label: "Financiamiento adicional",
+          value: customFinancingValue,
+        }
       : null,
 
     safeProperty.measures
-      ? { icon: "📏", label: "Medidas", value: safeProperty.measures }
+      ? {
+          icon: "📏",
+          label: "Medidas",
+          value: safeProperty.measures,
+        }
       : null,
 
     isLots && hasValue(safeProperty.total_lots)
-      ? { icon: "🧱", label: "Lotes", value: `${safeProperty.total_lots} lotes` }
+      ? {
+          icon: "🧱",
+          label: "Lotes",
+          value: `${safeProperty.total_lots} lotes`,
+        }
       : null,
 
     isLots && hasValue(safeProperty.lot_price)
