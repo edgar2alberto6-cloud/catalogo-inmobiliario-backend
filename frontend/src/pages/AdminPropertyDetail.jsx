@@ -52,6 +52,9 @@ function AdminPropertyDetail() {
             propertyData?.status_display || "Disponible",
           credit_type: propertyData?.credit_type || "none",
           credit_type_display: propertyData?.credit_type_display || "",
+          custom_financing: propertyData?.custom_financing ?? false,
+          custom_financing_details:
+            propertyData?.custom_financing_details || "",
           images: Array.isArray(propertyData?.images) ? propertyData.images : [],
           video: propertyData?.video || null,
           video_url: propertyData?.video_url || null,
