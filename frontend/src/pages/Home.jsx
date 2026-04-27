@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { getProperties } from "../api/properties";
+import { getToken, parseJwt } from "../utils/auth";
 import HomeHero from "../components/Home/HomeHero";
 import HomeFilterBar from "../components/Home/HomeFilterBar";
 import HomeInventoryCTA from "../components/Home/HomeInventoryCTA";
@@ -9,10 +10,12 @@ import heroImage from "../assets/RENDER-6.jpg";
 
 function Home() {
   const navigate = useNavigate();
+  const location = useLocation();
   const inventoryRef = useRef(null);
 
   const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [sessionExpiredMessage, setSessionExpiredMessage] = useState(false);
 
   // 🔥 PAGINACIÓN
   const [nextUrl, setNextUrl] = useState(null);
@@ -30,16 +33,7 @@ function Home() {
     search: "",
   });
 
-  const token = localStorage.getItem("token");
-
-  const parseJwt = (token) => {
-    try {
-      return JSON.parse(atob(token.split(".")[1]));
-    } catch {
-      return null;
-    }
-  };
-
+  const token = getToken();
   const tokenData = token ? parseJwt(token) : null;
 
   const role = tokenData?.is_superuser
@@ -47,6 +41,22 @@ function Home() {
     : tokenData?.is_staff
     ? "seller"
     : "public";
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const sessionExpired = params.get("sessionExpired");
+
+    if (sessionExpired === "1") {
+      setSessionExpiredMessage(true);
+
+      const timer = setTimeout(() => {
+        setSessionExpiredMessage(false);
+        navigate("/", { replace: true });
+      }, 4500);
+
+      return () => clearTimeout(timer);
+    }
+  }, [location.search, navigate]);
 
   useEffect(() => {
     fetchProperties();
@@ -98,7 +108,6 @@ function Home() {
       } else {
         setCurrentPage(1);
       }
-
     } catch (error) {
       console.error("Error:", error);
       setProperties([]);
@@ -192,6 +201,16 @@ function Home() {
 
   return (
     <div className="bg-[#f7f7f5] min-h-screen">
+      {sessionExpiredMessage && (
+        <div className="fixed top-5 left-1/2 -translate-x-1/2 z-50 w-[92%] max-w-md rounded-2xl border border-amber-200 bg-white px-5 py-4 shadow-xl">
+          <p className="font-semibold text-gray-900">Tu sesión expiró</p>
+          <p className="text-sm text-gray-600 mt-1">
+            Por seguridad cerramos tu sesión. Puedes seguir viendo el catálogo
+            público o iniciar sesión nuevamente.
+          </p>
+        </div>
+      )}
+
       <HomeHero backgroundImage={heroImage}>
         <HomeFilterBar
           filters={filters}
@@ -203,7 +222,6 @@ function Home() {
       <HomeInventoryCTA onClick={scrollToInventory} />
 
       <section ref={inventoryRef} className="max-w-7xl mx-auto px-4 pb-12">
-
         {/* HEADER */}
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-6">
           <div>
@@ -216,9 +234,7 @@ function Home() {
           </div>
 
           <p className="text-gray-500">
-            {loading
-              ? "Cargando..."
-              : `${count} propiedades totales`}
+            {loading ? "Cargando..." : `${count} propiedades totales`}
           </p>
         </div>
 
@@ -234,7 +250,6 @@ function Home() {
 
         {/* 🔥 PAGINACIÓN */}
         <div className="flex justify-center items-center gap-4 mt-8">
-
           <button
             onClick={handlePrev}
             disabled={!prevUrl}
@@ -243,9 +258,7 @@ function Home() {
             Anterior
           </button>
 
-          <span className="text-sm text-gray-600">
-            Página {currentPage}
-          </span>
+          <span className="text-sm text-gray-600">Página {currentPage}</span>
 
           <button
             onClick={handleNext}
@@ -254,13 +267,10 @@ function Home() {
           >
             Siguiente
           </button>
-
         </div>
-
       </section>
     </div>
   );
 }
 
 export default Home;
-

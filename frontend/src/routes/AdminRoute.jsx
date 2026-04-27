@@ -1,21 +1,19 @@
 import { Navigate } from "react-router-dom";
+import { getToken, parseJwt, logout } from "../utils/auth";
 
 function AdminRoute({ children }) {
-  const token = localStorage.getItem("token");
+  const token = getToken();
+  const tokenData = parseJwt(token);
 
-  const parseJwt = (token) => {
-    try {
-      return JSON.parse(atob(token.split(".")[1]));
-    } catch (error) {
-      return null;
-    }
-  };
+  const isExpired = tokenData?.exp
+    ? tokenData.exp * 1000 < Date.now()
+    : true;
 
-  const tokenData = token ? parseJwt(token) : null;
   const isAdmin = tokenData?.is_superuser === true;
 
-  if (!isAdmin) {
-    return <Navigate to="/" replace />;
+  if (!token || isExpired || !isAdmin) {
+    logout();
+    return <Navigate to="/" replace state={{ sessionExpired: isExpired }} />;
   }
 
   return children;

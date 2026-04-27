@@ -25,10 +25,17 @@ axiosInstance.interceptors.request.use(
 axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    const status = error.response?.status;
+    const currentPath = window.location.pathname;
+
+    if (status === 401) {
       console.warn("Sesión expirada o token inválido");
+
       logout();
-      window.location.href = "/login";
+
+      if (currentPath !== "/" && currentPath !== "/login") {
+        window.location.replace("/?sessionExpired=1");
+      }
     }
 
     return Promise.reject(error);
