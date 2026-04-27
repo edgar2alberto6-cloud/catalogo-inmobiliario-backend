@@ -1,6 +1,4 @@
-import React from "react";
-
-const FALLBACK_IMAGE = "https://via.placeholder.com/600x400?text=Sin+imagen";
+import React, { useState } from "react";
 
 const formatPrice = (value) => {
   const number = Number(value);
@@ -37,16 +35,19 @@ const statusLabel = {
 };
 
 const PropertyCard = ({ property = {}, onClick }) => {
+  const [imageError, setImageError] = useState(false);
+
   const safeProperty = property || {};
   const isLots = safeProperty.property_type === "lots";
   const isHectares = safeProperty.property_type === "hectares";
 
-  const image =
+  const hasImage =
     Array.isArray(safeProperty.images) &&
     safeProperty.images.length > 0 &&
-    safeProperty.images[0]?.image
-      ? safeProperty.images[0].image
-      : FALLBACK_IMAGE;
+    safeProperty.images[0]?.image &&
+    !imageError;
+
+  const image = hasImage ? safeProperty.images[0].image : null;
 
   const title = safeProperty.title || "Propiedad disponible";
 
@@ -88,14 +89,25 @@ const PropertyCard = ({ property = {}, onClick }) => {
       className="bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-xl hover:-translate-y-1 transition duration-300 cursor-pointer border border-gray-100"
     >
       <div className="relative">
-        <img
-          src={image}
-          alt={title}
-          className="w-full h-56 object-cover"
-          onError={(e) => {
-            e.currentTarget.src = FALLBACK_IMAGE;
-          }}
-        />
+        {image ? (
+          <img
+            src={image}
+            alt={title}
+            className="w-full h-56 object-cover"
+            onError={() => setImageError(true)}
+          />
+        ) : (
+          <div className="w-full h-56 bg-[#f1f3ef] flex items-center justify-center">
+            <div className="text-center px-4">
+              <div className="mx-auto mb-3 h-12 w-12 rounded-full bg-[#3D7754]/10 flex items-center justify-center">
+                <span className="text-[#3D7754] text-xl font-bold">Y</span>
+              </div>
+              <p className="text-sm font-semibold text-gray-600">
+                Sin imagen disponible
+              </p>
+            </div>
+          </div>
+        )}
 
         <div className="absolute top-3 left-3 flex gap-2 flex-wrap pr-3">
           <span className="px-3 py-1 rounded-full bg-white/90 text-[#3D7754] text-xs font-semibold shadow">
