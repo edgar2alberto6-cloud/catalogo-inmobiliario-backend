@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { getProperties } from "../api/properties";
 import { getToken, parseJwt } from "../utils/auth";
@@ -7,6 +7,8 @@ import HomeFilterBar from "../components/Home/HomeFilterBar";
 import HomeInventoryCTA from "../components/Home/HomeInventoryCTA";
 import PropertyGrid from "../components/properties/PropertyGrid";
 import heroImage from "../assets/RENDER-6.jpg";
+
+const PAGE_SIZE = 10;
 
 function Home() {
   const navigate = useNavigate();
@@ -42,6 +44,8 @@ function Home() {
     ? "seller"
     : "public";
 
+  const totalPages = Math.max(1, Math.ceil(count / PAGE_SIZE));
+
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const sessionExpired = params.get("sessionExpired");
@@ -59,8 +63,8 @@ function Home() {
   }, [location.search, navigate]);
 
   useEffect(() => {
-    fetchProperties();
-  }, []);
+    fetchProperties(currentPage);
+  }, [currentPage, filters]);
 
   const sanitizeProperties = (list) => {
     if (!Array.isArray(list)) return [];
@@ -79,58 +83,93 @@ function Home() {
     }));
   };
 
-  // 🔥 FETCH PRINCIPAL (con soporte URL dinámica)
-  const fetchProperties = async (url = null) => {
+  // 🔥 FETCH PRINCIPAL
+  // Ahora manda página + filtros al backend.
+  // Así el filtro ya no trabaja solo con la página actual.
+  const fetchProperties = async (page = 1) => {
     try {
       setLoading(true);
 
-      let res;
-
-      if (url) {
-        res = await fetch(url).then((r) => r.json());
-      } else {
-        res = await getProperties();
-      }
+      const res = await getProperties({
+        page,
+        ...filters,
+      });
 
       const data = Array.isArray(res) ? res : res?.results || [];
 
       setProperties(sanitizeProperties(data));
 
-      // 🔥 PAGINACIÓN
-      setNextUrl(res?.next);
-      setPrevUrl(res?.previous);
-      setCount(res?.count || data.length);
-
-      // detectar página actual
-      if (url) {
-        const match = url.match(/page=(\d+)/);
-        if (match) setCurrentPage(Number(match[1]));
-      } else {
-        setCurrentPage(1);
-      }
+      // Si el backend responde paginado: count, next, previous, results.
+      // Si algún día responde arreglo normal, no se rompe.
+      setNextUrl(Array.isArray(res) ? null : res?.next || null);
+      setPrevUrl(Array.isArray(res) ? null : res?.previous || null);
+      setCount(Array.isArray(res) ? data.length : res?.count || data.length);
     } catch (error) {
       console.error("Error:", error);
       setProperties([]);
+      setNextUrl(null);
+      setPrevUrl(null);
+      setCount(0);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleNext = () => {
-    if (nextUrl) fetchProperties(nextUrl);
-  };
-
-  const handlePrev = () => {
-    if (prevUrl) fetchProperties(prevUrl);
-  };
-
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
+
+    setCurrentPage(1);
 
     setFilters((prev) => ({
       ...prev,
       [name]: value,
     }));
+  };
+
+  const handlePrev = () => {
+    if (!prevUrl || currentPage <= 1) return;
+    setCurrentPage((prev) => Math.max(1, prev - 1));
+    scrollToInventory();
+  };
+
+  const handleNext = () => {
+    if (!nextUrl || currentPage >= totalPages) return;
+    setCurrentPage((prev) => Math.min(totalPages, prev + 1));
+    scrollToInventory();
+  };
+
+  const handlePageClick = (page) => {
+    if (page === currentPage) return;
+
+    setCurrentPage(page);
+    scrollToInventory();
+  };
+
+  const getPageNumbers = () => {
+    if (totalPages <= 7) {
+      return Array.from({ length: totalPages }, (_, index) => index + 1);
+    }
+
+    const pages = [1];
+
+    const start = Math.max(2, currentPage - 1);
+    const end = Math.min(totalPages - 1, currentPage + 1);
+
+    if (start > 2) {
+      pages.push("left-ellipsis");
+    }
+
+    for (let page = start; page <= end; page += 1) {
+      pages.push(page);
+    }
+
+    if (end < totalPages - 1) {
+      pages.push("right-ellipsis");
+    }
+
+    pages.push(totalPages);
+
+    return pages;
   };
 
   const scrollToInventory = () => {
@@ -153,51 +192,6 @@ function Home() {
 
     navigate(`/property/${property.id}`);
   };
-
-  const filteredProperties = useMemo(() => {
-    return properties.filter((property) => {
-      const searchText = filters.search.trim().toLowerCase();
-
-      const matchesSearch =
-        !searchText ||
-        property.title?.toLowerCase().includes(searchText) ||
-        property.city?.toLowerCase().includes(searchText) ||
-        property.location?.toLowerCase().includes(searchText);
-
-      const matchesListingType =
-        !filters.listing_type ||
-        property.listing_type === filters.listing_type;
-
-      const matchesPropertyType =
-        !filters.property_type ||
-        property.property_type === filters.property_type;
-
-      const matchesCreditType =
-        !filters.credit_type ||
-        property.credit_type === filters.credit_type;
-
-      const matchesStatus =
-        !filters.status || property.status === filters.status;
-
-      const price = Number(property.price || 0);
-
-      const matchesMinPrice =
-        !filters.min_price || price >= Number(filters.min_price);
-
-      const matchesMaxPrice =
-        !filters.max_price || price <= Number(filters.max_price);
-
-      return (
-        matchesSearch &&
-        matchesListingType &&
-        matchesPropertyType &&
-        matchesCreditType &&
-        matchesStatus &&
-        matchesMinPrice &&
-        matchesMaxPrice
-      );
-    });
-  }, [properties, filters]);
 
   return (
     <div className="bg-[#f7f7f5] min-h-screen">
@@ -234,7 +228,7 @@ function Home() {
           </div>
 
           <p className="text-gray-500">
-            {loading ? "Cargando..." : `${count} propiedades totales`}
+            {loading ? "Cargando..." : `${count} propiedades encontradas`}
           </p>
         </div>
 
@@ -242,32 +236,58 @@ function Home() {
         {loading ? (
           <div className="text-center py-10">Cargando...</div>
         ) : (
-          <PropertyGrid
-            properties={filteredProperties}
-            onCardClick={handleCardClick}
-          />
+          <PropertyGrid properties={properties} onCardClick={handleCardClick} />
         )}
 
         {/* 🔥 PAGINACIÓN */}
-        <div className="flex justify-center items-center gap-4 mt-8">
-          <button
-            onClick={handlePrev}
-            disabled={!prevUrl}
-            className="px-4 py-2 rounded-lg border disabled:opacity-40"
-          >
-            Anterior
-          </button>
+        {totalPages > 1 && (
+          <div className="flex flex-wrap justify-center items-center gap-2 mt-8">
+            <button
+              onClick={handlePrev}
+              disabled={!prevUrl || currentPage <= 1}
+              className="px-4 py-2 rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              Anterior
+            </button>
 
-          <span className="text-sm text-gray-600">Página {currentPage}</span>
+            {getPageNumbers().map((page) => {
+              if (typeof page === "string") {
+                return (
+                  <span
+                    key={page}
+                    className="px-2 py-2 text-sm text-gray-400"
+                  >
+                    ...
+                  </span>
+                );
+              }
 
-          <button
-            onClick={handleNext}
-            disabled={!nextUrl}
-            className="px-4 py-2 rounded-lg border disabled:opacity-40"
-          >
-            Siguiente
-          </button>
-        </div>
+              const isActive = page === currentPage;
+
+              return (
+                <button
+                  key={page}
+                  onClick={() => handlePageClick(page)}
+                  className={`min-w-10 px-3 py-2 rounded-lg border text-sm font-semibold transition ${
+                    isActive
+                      ? "bg-[#3D7754] border-[#3D7754] text-white"
+                      : "bg-white border-gray-300 text-gray-700 hover:bg-gray-50"
+                  }`}
+                >
+                  {page}
+                </button>
+              );
+            })}
+
+            <button
+              onClick={handleNext}
+              disabled={!nextUrl || currentPage >= totalPages}
+              className="px-4 py-2 rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              Siguiente
+            </button>
+          </div>
+        )}
       </section>
     </div>
   );

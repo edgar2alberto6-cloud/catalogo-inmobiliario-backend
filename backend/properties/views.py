@@ -77,7 +77,8 @@ class PropertyListView(generics.ListCreateAPIView):
             queryset = queryset.filter(
                 Q(title__icontains=search) |
                 Q(description__icontains=search) |
-                Q(city__icontains=search)
+                Q(city__icontains=search) |
+                Q(location__icontains=search)
             )
 
         # ==============================

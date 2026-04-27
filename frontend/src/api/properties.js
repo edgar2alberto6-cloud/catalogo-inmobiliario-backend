@@ -1,8 +1,22 @@
 import axios from "./axios";
 
 // 🔥 obtener propiedades
-export const getProperties = async () => {
-  const response = await axios.get("/properties/");
+// Ahora acepta filtros y paginación desde el backend.
+// Ejemplos:
+// getProperties()
+// getProperties({ page: 2 })
+// getProperties({ search: "casa", property_type: "house", listing_type: "sale" })
+export const getProperties = async (params = {}) => {
+  const cleanParams = Object.fromEntries(
+    Object.entries(params).filter(
+      ([, value]) => value !== "" && value !== null && value !== undefined
+    )
+  );
+
+  const response = await axios.get("/properties/", {
+    params: cleanParams,
+  });
+
   return response.data;
 };
 
