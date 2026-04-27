@@ -1,5 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { Pencil, Trash2 } from "lucide-react";
 import axios from "../api/axios";
 import { getPropertyDetail, deleteProperty } from "../api/properties";
 import ErrorBoundary from "../components/ErrorBoundary";
@@ -37,7 +38,8 @@ function AdminPropertyDetail() {
           location: propertyData?.location || "",
           city: propertyData?.city || "",
           description:
-            propertyData?.description || "Información no disponible por el momento.",
+            propertyData?.description ||
+            "Información no disponible por el momento.",
           price: propertyData?.price || null,
           lot_price: propertyData?.lot_price || null,
           hectare_price: propertyData?.hectare_price || null,
@@ -45,17 +47,17 @@ function AdminPropertyDetail() {
           property_type_display:
             propertyData?.property_type_display || "Propiedad",
           listing_type: propertyData?.listing_type || "sale",
-          listing_type_display:
-            propertyData?.listing_type_display || "Venta",
+          listing_type_display: propertyData?.listing_type_display || "Venta",
           status: propertyData?.status || "available",
-          status_display:
-            propertyData?.status_display || "Disponible",
+          status_display: propertyData?.status_display || "Disponible",
           credit_type: propertyData?.credit_type || "none",
           credit_type_display: propertyData?.credit_type_display || "",
           custom_financing: propertyData?.custom_financing ?? false,
           custom_financing_details:
             propertyData?.custom_financing_details || "",
-          images: Array.isArray(propertyData?.images) ? propertyData.images : [],
+          images: Array.isArray(propertyData?.images)
+            ? propertyData.images
+            : [],
           video: propertyData?.video || null,
           video_url: propertyData?.video_url || null,
           measures: propertyData?.measures || "",
@@ -178,8 +180,6 @@ function AdminPropertyDetail() {
             title={property.title}
             location={property.location}
             city={property.city}
-            showEditButton={canSeeAdminData}
-            editPath={`/admin/property/${id}/edit`}
           />
         </ErrorBoundary>
 
@@ -187,16 +187,18 @@ function AdminPropertyDetail() {
           <div className="mt-4 mb-6 flex flex-wrap gap-3">
             <button
               onClick={() => navigate(`/admin/property/${id}/edit`)}
-              className="px-4 h-11 rounded-full bg-[#3D7754] text-white hover:brightness-95 transition font-semibold"
+              className="inline-flex h-11 items-center gap-2 rounded-full bg-[#3D7754] px-5 text-sm font-semibold text-white shadow-sm transition hover:brightness-95 active:scale-[0.98]"
             >
+              <Pencil size={17} strokeWidth={2.2} />
               Editar propiedad
             </button>
 
             <button
               onClick={handleDeleteProperty}
               disabled={deleting}
-              className="px-4 h-11 rounded-full bg-red-600 text-white hover:bg-red-700 disabled:opacity-50 transition font-semibold"
+              className="inline-flex h-11 items-center gap-2 rounded-full bg-red-600 px-5 text-sm font-semibold text-white shadow-sm transition hover:bg-red-700 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
             >
+              <Trash2 size={17} strokeWidth={2.2} />
               {deleting ? "Eliminando..." : "Eliminar propiedad"}
             </button>
           </div>
