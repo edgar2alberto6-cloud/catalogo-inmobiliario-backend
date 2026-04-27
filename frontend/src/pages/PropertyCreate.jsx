@@ -112,7 +112,7 @@ function PropertyCreate() {
     });
 
     if (redirectTo) {
-      navigate(redirectTo);
+      navigate(redirectTo, { replace: true });
     }
   };
 
@@ -356,6 +356,12 @@ function PropertyCreate() {
       return;
     }
 
+    const confirmed = window.confirm(
+      "¿Confirmas que los datos de la propiedad son correctos?"
+    );
+
+    if (!confirmed) return;
+
     let createdProperty = null;
 
     try {
@@ -438,7 +444,7 @@ function PropertyCreate() {
           message: `La propiedad sí se creó, pero hubo problemas con: ${issues.join(
             ", "
           )}. Al cerrar este mensaje te mandaré al detalle para revisarla.`,
-          redirectTo: `/property/${propertyId}`,
+          redirectTo: `/admin/property/${propertyId}`,
         });
         return;
       }
@@ -448,7 +454,7 @@ function PropertyCreate() {
         title: "Propiedad creada correctamente",
         message:
           "La propiedad y su multimedia se guardaron correctamente. Al cerrar este mensaje te mandaré al detalle.",
-        redirectTo: `/property/${propertyId}`,
+        redirectTo: `/admin/property/${propertyId}`,
       });
     } catch (error) {
       console.error("Error al crear propiedad:", error);
@@ -459,7 +465,7 @@ function PropertyCreate() {
           title: "Creación parcial completada",
           message:
             "La propiedad base sí se creó, pero hubo problemas al terminar la multimedia.",
-          redirectTo: `/property/${createdProperty.id}`,
+          redirectTo: `/admin/property/${createdProperty.id}`,
         });
       } else if (error.response?.data) {
         console.error("Detalle del error:", error.response.data);

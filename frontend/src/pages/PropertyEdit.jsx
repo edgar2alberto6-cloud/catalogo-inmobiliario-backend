@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import {
   getPropertyDetail,
   updateProperty,
@@ -51,6 +51,7 @@ function getPhoneDigits(value) {
 
 function PropertyEdit() {
   const { id } = useParams();
+  const navigate = useNavigate();
 
   const [property, setProperty] = useState(null);
   const [formData, setFormData] = useState({
@@ -101,24 +102,33 @@ function PropertyEdit() {
     type: "info", // success | error | warning | info
     title: "",
     message: "",
+    redirectTo: null,
   });
 
-  const openModal = ({ type = "info", title, message }) => {
+  const openModal = ({ type = "info", title, message, redirectTo = null }) => {
     setModal({
       open: true,
       type,
       title,
       message,
+      redirectTo,
     });
   };
 
   const closeModal = () => {
+  const redirectTo = modal.redirectTo;
+
     setModal({
       open: false,
       type: "info",
       title: "",
       message: "",
+      redirectTo: null,
     });
+
+    if (redirectTo) {
+      navigate(redirectTo, { replace: true });
+    }
   };
 
   const getModalStyles = () => {
@@ -376,6 +386,12 @@ function PropertyEdit() {
       return;
     }
 
+    const confirmed = window.confirm(
+      "¿Seguro que deseas guardar los cambios de esta propiedad?"
+    );
+
+if (!confirmed) return;
+
     try {
       setSaving(true);
 
@@ -424,6 +440,7 @@ function PropertyEdit() {
         type: "success",
         title: "Cambios guardados",
         message: "La propiedad se actualizó correctamente.",
+        redirectTo: `/admin/property/${updatedProperty.id || id}`,
       });
     } catch (error) {
       console.error("Error al guardar propiedad:", error);

@@ -13,7 +13,7 @@ function AdminRoute({ children }) {
 
   if (!token || isExpired || !isAdmin) {
     logout();
-    return <Navigate to="/" replace state={{ sessionExpired: isExpired }} />;
+    return <Navigate to="/?sessionExpired=1" replace />;
   }
 
   return children;
