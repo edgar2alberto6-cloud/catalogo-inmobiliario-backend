@@ -25,7 +25,7 @@ function PropertyGallery({ images = [] }) {
 
   return (
     <div className="flex justify-center mb-10">
-      <div className="w-full max-w-[820px]">
+      <div className="w-full max-w-[900px]">
         {hasImages ? (
           <>
             <Swiper
@@ -45,18 +45,16 @@ function PropertyGallery({ images = [] }) {
             >
               {safeImages.map((img) => (
                 <SwiperSlide key={img.id}>
-                  <div className="overflow-hidden rounded-2xl shadow-lg border border-gray-200 bg-[#f3f2ee]">
-                    <div className="flex items-center justify-center w-full h-[300px] sm:h-[380px] md:h-[500px]">
-                      <img
-                        src={img.image}
-                        alt="Imagen de la propiedad"
-                        className="block w-full h-full object-contain"
-                        draggable="false"
-                        onError={(e) => {
-                          e.currentTarget.src = FALLBACK_IMAGE;
-                        }}
-                      />
-                    </div>
+                  <div className="flex items-center justify-center w-full">
+                    <img
+                      src={img.image}
+                      alt="Imagen de la propiedad"
+                      className="block max-w-full max-h-[320px] sm:max-h-[420px] md:max-h-[560px] w-auto h-auto rounded-2xl shadow-lg border border-gray-200 object-contain bg-white"
+                      draggable="false"
+                      onError={(e) => {
+                        e.currentTarget.src = FALLBACK_IMAGE;
+                      }}
+                    />
                   </div>
                 </SwiperSlide>
               ))}
@@ -78,18 +76,16 @@ function PropertyGallery({ images = [] }) {
                 >
                   {safeImages.map((img) => (
                     <SwiperSlide key={`thumb-${img.id}`}>
-                      <div className="overflow-hidden rounded-xl border border-gray-200 bg-[#f3f2ee] shadow-sm">
-                        <div className="flex items-center justify-center w-full h-20 sm:h-24">
-                          <img
-                            src={img.image}
-                            alt="Miniatura"
-                            className="block w-full h-full object-contain cursor-pointer opacity-80 hover:opacity-100 transition"
-                            draggable="false"
-                            onError={(e) => {
-                              e.currentTarget.src = FALLBACK_IMAGE;
-                            }}
-                          />
-                        </div>
+                      <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+                        <img
+                          src={img.image}
+                          alt="Miniatura"
+                          className="w-full h-20 sm:h-24 object-cover cursor-pointer opacity-80 hover:opacity-100 transition"
+                          draggable="false"
+                          onError={(e) => {
+                            e.currentTarget.src = FALLBACK_IMAGE;
+                          }}
+                        />
                       </div>
                     </SwiperSlide>
                   ))}
