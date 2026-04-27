@@ -1,6 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { Pencil, Trash2 } from "lucide-react";
 import axios from "../api/axios";
 import { getPropertyDetail, deleteProperty } from "../api/properties";
 import ErrorBoundary from "../components/ErrorBoundary";
@@ -11,6 +10,45 @@ import PropertyHeader from "../components/properties/PropertyHeader";
 import PropertyDescription from "../components/properties/PropertyDescription";
 import PropertySidebar from "../components/properties/PropertySidebar";
 import PropertyAdminSection from "../components/properties/PropertyAdminSection";
+
+function EditIcon() {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      className="h-4 w-4"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.3"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M12 20h9" />
+      <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />
+    </svg>
+  );
+}
+
+function TrashIcon() {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      className="h-4 w-4"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.3"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M3 6h18" />
+      <path d="M8 6V4h8v2" />
+      <path d="M19 6l-1 14H6L5 6" />
+      <path d="M10 11v6" />
+      <path d="M14 11v6" />
+    </svg>
+  );
+}
 
 function AdminPropertyDetail() {
   const { id } = useParams();
@@ -55,9 +93,7 @@ function AdminPropertyDetail() {
           custom_financing: propertyData?.custom_financing ?? false,
           custom_financing_details:
             propertyData?.custom_financing_details || "",
-          images: Array.isArray(propertyData?.images)
-            ? propertyData.images
-            : [],
+          images: Array.isArray(propertyData?.images) ? propertyData.images : [],
           video: propertyData?.video || null,
           video_url: propertyData?.video_url || null,
           measures: propertyData?.measures || "",
@@ -186,19 +222,21 @@ function AdminPropertyDetail() {
         {canSeeAdminData && (
           <div className="mt-4 mb-6 flex flex-wrap gap-3">
             <button
+              type="button"
               onClick={() => navigate(`/admin/property/${id}/edit`)}
-              className="inline-flex h-11 items-center gap-2 rounded-full bg-[#3D7754] px-5 text-sm font-semibold text-white shadow-sm transition hover:brightness-95 active:scale-[0.98]"
+              className="inline-flex items-center gap-2 px-5 h-11 rounded-full bg-blue-600 text-white hover:bg-blue-700 active:scale-[0.98] transition font-semibold shadow-sm"
             >
-              <Pencil size={17} strokeWidth={2.2} />
+              <EditIcon />
               Editar propiedad
             </button>
 
             <button
+              type="button"
               onClick={handleDeleteProperty}
               disabled={deleting}
-              className="inline-flex h-11 items-center gap-2 rounded-full bg-red-600 px-5 text-sm font-semibold text-white shadow-sm transition hover:bg-red-700 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
+              className="inline-flex items-center gap-2 px-5 h-11 rounded-full bg-red-600 text-white hover:bg-red-700 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed transition font-semibold shadow-sm"
             >
-              <Trash2 size={17} strokeWidth={2.2} />
+              <TrashIcon />
               {deleting ? "Eliminando..." : "Eliminar propiedad"}
             </button>
           </div>
