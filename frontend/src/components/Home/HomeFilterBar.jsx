@@ -1,4 +1,28 @@
 function HomeFilterBar({ filters, onChange, onSearch }) {
+  const formatPrice = (value) => {
+    if (value === null || value === undefined || value === "") return "";
+
+    const onlyNumbers = String(value).replace(/[^\d]/g, "");
+
+    if (!onlyNumbers) return "";
+
+    return Number(onlyNumbers).toLocaleString("en-US");
+  };
+
+  const handlePriceChange = (e) => {
+    const { name, value } = e.target;
+
+    // Solo dejamos números. Las comas son visuales nada más.
+    const cleanValue = value.replace(/[^\d]/g, "");
+
+    onChange({
+      target: {
+        name,
+        value: cleanValue,
+      },
+    });
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     onSearch();
@@ -63,22 +87,22 @@ function HomeFilterBar({ filters, onChange, onSearch }) {
           </select>
 
           <input
-            type="number"
+            type="text"
+            inputMode="numeric"
             name="min_price"
-            value={filters.min_price}
-            onChange={onChange}
+            value={formatPrice(filters.min_price)}
+            onChange={handlePriceChange}
             placeholder="Precio desde"
-            min="0"
             className="px-5 py-4 border-b xl:border-b-0 xl:border-r outline-none text-gray-700 placeholder:text-gray-400"
           />
 
           <input
-            type="number"
+            type="text"
+            inputMode="numeric"
             name="max_price"
-            value={filters.max_price}
-            onChange={onChange}
+            value={formatPrice(filters.max_price)}
+            onChange={handlePriceChange}
             placeholder="Precio hasta"
-            min="0"
             className="px-5 py-4 border-b xl:border-b-0 xl:border-r outline-none text-gray-700 placeholder:text-gray-400"
           />
 

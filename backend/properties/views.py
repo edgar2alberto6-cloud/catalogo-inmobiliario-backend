@@ -163,6 +163,13 @@ TEXT_SEARCH_FIELDS = [
 ]
 
 
+PRICE_FILTER_FIELDS = [
+    "price",
+    "lot_price",
+    "hectare_price",
+]
+
+
 def normalize_text(value):
     """
     Convierte textos como:
@@ -206,6 +213,15 @@ def get_existing_text_search_fields():
     return [
         field_name
         for field_name in TEXT_SEARCH_FIELDS
+        if field_name in existing_fields
+    ]
+
+
+def get_existing_price_filter_fields():
+    existing_fields = get_existing_model_fields(Property)
+    return [
+        field_name
+        for field_name in PRICE_FILTER_FIELDS
         if field_name in existing_fields
     ]
 
@@ -298,11 +314,41 @@ def resolve_search_alias_values(search, aliases, valid_values):
     return resolved_values
 
 
-def safe_decimal(value):
-    if value is None or str(value).strip() == "":
-        return None
+def clean_numeric_value(value):
+    """
+    Limpia números escritos como:
+    500000
+    500,000
+    $500,000
+    MXN 1,500,000
 
-    cleaned_value = str(value).replace(",", "").strip()
+    y los deja listos para Decimal.
+    """
+    if value is None:
+        return ""
+
+    value = str(value).strip()
+
+    if not value:
+        return ""
+
+    # Quitar comas, espacios, símbolo de pesos y letras.
+    value = value.replace(",", "")
+    value = re.sub(r"[^0-9.]", "", value)
+
+    # Si por error llegan varios puntos, dejamos solo el primero.
+    if value.count(".") > 1:
+        parts = value.split(".")
+        value = parts[0] + "." + "".join(parts[1:])
+
+    return value
+
+
+def safe_decimal(value):
+    cleaned_value = clean_numeric_value(value)
+
+    if not cleaned_value:
+        return None
 
     try:
         return Decimal(cleaned_value)
@@ -310,13 +356,50 @@ def safe_decimal(value):
         return None
 
 
-def apply_decimal_filter(queryset, field_name, lookup, value):
-    decimal_value = safe_decimal(value)
+def apply_price_range_filter(queryset, min_price=None, max_price=None):
+    """
+    Filtra propiedades por rango de precio.
 
-    if decimal_value is None:
+    Busca en:
+    - price
+    - lot_price
+    - hectare_price
+
+    Esto ayuda porque algunas propiedades pueden tener precio general,
+    otras precio por lote y otras precio por hectárea.
+    """
+    min_decimal = safe_decimal(min_price)
+    max_decimal = safe_decimal(max_price)
+
+    if min_decimal is None and max_decimal is None:
         return queryset
 
-    return queryset.filter(**{f"{field_name}__{lookup}": decimal_value})
+    # Si accidentalmente ponen:
+    # Desde: 2,000,000
+    # Hasta: 500,000
+    # Lo corregimos para no dejar la búsqueda vacía por error humano.
+    if min_decimal is not None and max_decimal is not None and min_decimal > max_decimal:
+        min_decimal, max_decimal = max_decimal, min_decimal
+
+    price_fields = get_existing_price_filter_fields()
+
+    if not price_fields:
+        return queryset
+
+    final_q = Q()
+
+    for field_name in price_fields:
+        field_q = Q()
+
+        if min_decimal is not None:
+            field_q &= Q(**{f"{field_name}__gte": min_decimal})
+
+        if max_decimal is not None:
+            field_q &= Q(**{f"{field_name}__lte": max_decimal})
+
+        final_q |= field_q
+
+    return queryset.filter(final_q).distinct()
 
 
 def apply_accent_insensitive_contains_filter(queryset, field_name, value):
@@ -510,21 +593,13 @@ class PropertyListView(generics.ListCreateAPIView):
             )
 
         min_price = request.query_params.get("min_price")
-        if min_price:
-            queryset = apply_decimal_filter(
-                queryset,
-                "price",
-                "gte",
-                min_price
-            )
-
         max_price = request.query_params.get("max_price")
-        if max_price:
-            queryset = apply_decimal_filter(
+
+        if min_price or max_price:
+            queryset = apply_price_range_filter(
                 queryset,
-                "price",
-                "lte",
-                max_price
+                min_price=min_price,
+                max_price=max_price
             )
 
         property_type = request.query_params.get("property_type")

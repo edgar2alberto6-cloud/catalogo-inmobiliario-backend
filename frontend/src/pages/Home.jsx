@@ -35,10 +35,10 @@ function Home() {
   const [count, setCount] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
 
-  // Lo que el usuario está escribiendo/cambiando en el formulario
+  // Lo que el usuario escribe o selecciona en el filtro
   const [filters, setFilters] = useState(initialFilters);
 
-  // Lo que realmente ya se mandó al backend
+  // Lo que realmente ya se aplicó al backend
   const [appliedFilters, setAppliedFilters] = useState(initialFilters);
 
   const token = getToken();
@@ -89,12 +89,26 @@ function Home() {
     }));
   };
 
+  const cleanNumericFilter = (value) => {
+    if (value === null || value === undefined) return "";
+
+    return String(value).replace(/[^\d.]/g, "");
+  };
+
   const cleanFilters = (filtersToClean) => {
     const cleaned = {};
 
     Object.entries(filtersToClean).forEach(([key, value]) => {
-      if (value !== undefined && value !== null && String(value).trim() !== "") {
-        cleaned[key] = String(value).trim();
+      if (value === undefined || value === null) return;
+
+      let cleanValue = String(value).trim();
+
+      if (key === "min_price" || key === "max_price") {
+        cleanValue = cleanNumericFilter(cleanValue);
+      }
+
+      if (cleanValue !== "") {
+        cleaned[key] = cleanValue;
       }
     });
 
@@ -267,6 +281,7 @@ function Home() {
         {totalPages > 1 && (
           <div className="flex flex-wrap justify-center items-center gap-2 mt-8">
             <button
+              type="button"
               onClick={handlePrev}
               disabled={!prevUrl || currentPage <= 1}
               className="px-4 py-2 rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed"
@@ -287,6 +302,7 @@ function Home() {
 
               return (
                 <button
+                  type="button"
                   key={page}
                   onClick={() => handlePageClick(page)}
                   className={`min-w-10 px-3 py-2 rounded-lg border text-sm font-semibold transition ${
@@ -301,6 +317,7 @@ function Home() {
             })}
 
             <button
+              type="button"
               onClick={handleNext}
               disabled={!nextUrl || currentPage >= totalPages}
               className="px-4 py-2 rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed"
