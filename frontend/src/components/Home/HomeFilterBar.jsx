@@ -1,13 +1,21 @@
 function HomeFilterBar({ filters, onChange, onSearch }) {
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onSearch();
+  };
+
   return (
     <div className="max-w-6xl mx-auto">
-      <div className="bg-white/95 backdrop-blur rounded-3xl shadow-2xl overflow-hidden border border-white/40">
+      <form
+        onSubmit={handleSubmit}
+        className="bg-white/95 backdrop-blur rounded-3xl shadow-2xl overflow-hidden border border-white/40"
+      >
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-7">
           <select
             name="listing_type"
             value={filters.listing_type}
             onChange={onChange}
-            className="px-5 py-4 border-b xl:border-b-0 xl:border-r outline-none bg-transparent"
+            className="px-5 py-4 border-b xl:border-b-0 xl:border-r outline-none bg-transparent text-gray-700"
           >
             <option value="">Operación</option>
             <option value="sale">Venta</option>
@@ -18,19 +26,22 @@ function HomeFilterBar({ filters, onChange, onSearch }) {
             name="property_type"
             value={filters.property_type}
             onChange={onChange}
-            className="px-5 py-4 border-b xl:border-b-0 xl:border-r outline-none bg-transparent"
+            className="px-5 py-4 border-b xl:border-b-0 xl:border-r outline-none bg-transparent text-gray-700"
           >
-            <option value="">Tipo</option>
+            <option value="">Tipo de propiedad</option>
             <option value="house">Casa</option>
             <option value="land">Terreno</option>
             <option value="apartment">Departamento</option>
+            <option value="lots">Lotes</option>
+            <option value="hectares">Hectáreas</option>
+            <option value="ranch">Rancho</option>
           </select>
 
           <select
             name="credit_type"
             value={filters.credit_type}
             onChange={onChange}
-            className="px-5 py-4 border-b xl:border-b-0 xl:border-r outline-none bg-transparent"
+            className="px-5 py-4 border-b xl:border-b-0 xl:border-r outline-none bg-transparent text-gray-700"
           >
             <option value="">Crédito</option>
             <option value="none">Ninguno</option>
@@ -43,7 +54,7 @@ function HomeFilterBar({ filters, onChange, onSearch }) {
             name="status"
             value={filters.status}
             onChange={onChange}
-            className="px-5 py-4 border-b xl:border-b-0 xl:border-r outline-none bg-transparent"
+            className="px-5 py-4 border-b xl:border-b-0 xl:border-r outline-none bg-transparent text-gray-700"
           >
             <option value="">Estado</option>
             <option value="available">Disponible</option>
@@ -56,8 +67,9 @@ function HomeFilterBar({ filters, onChange, onSearch }) {
             name="min_price"
             value={filters.min_price}
             onChange={onChange}
-            placeholder="Desde"
-            className="px-5 py-4 border-b xl:border-b-0 xl:border-r outline-none"
+            placeholder="Precio desde"
+            min="0"
+            className="px-5 py-4 border-b xl:border-b-0 xl:border-r outline-none text-gray-700 placeholder:text-gray-400"
           />
 
           <input
@@ -65,13 +77,13 @@ function HomeFilterBar({ filters, onChange, onSearch }) {
             name="max_price"
             value={filters.max_price}
             onChange={onChange}
-            placeholder="Hasta"
-            className="px-5 py-4 border-b xl:border-b-0 xl:border-r outline-none"
+            placeholder="Precio hasta"
+            min="0"
+            className="px-5 py-4 border-b xl:border-b-0 xl:border-r outline-none text-gray-700 placeholder:text-gray-400"
           />
 
           <button
-            type="button"
-            onClick={onSearch}
+            type="submit"
             className="px-6 py-4 bg-[#CCA352] hover:brightness-95 transition font-semibold text-white"
           >
             Buscar
@@ -84,11 +96,11 @@ function HomeFilterBar({ filters, onChange, onSearch }) {
             name="search"
             value={filters.search}
             onChange={onChange}
-            placeholder="Ingresa ubicación, ciudad o título"
-            className="w-full px-5 py-4 outline-none"
+            placeholder="Busca por ubicación, ciudad, título o tipo: Mérida, Xocén, lotes, hectáreas..."
+            className="w-full px-5 py-4 outline-none text-gray-700 placeholder:text-gray-400"
           />
         </div>
-      </div>
+      </form>
     </div>
   );
 }

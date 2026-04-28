@@ -10,6 +10,16 @@ import heroImage from "../assets/RENDER-6.jpg";
 
 const PAGE_SIZE = 10;
 
+const initialFilters = {
+  listing_type: "",
+  property_type: "",
+  credit_type: "",
+  status: "",
+  min_price: "",
+  max_price: "",
+  search: "",
+};
+
 function Home() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -25,15 +35,11 @@ function Home() {
   const [count, setCount] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
 
-  const [filters, setFilters] = useState({
-    listing_type: "",
-    property_type: "",
-    credit_type: "",
-    status: "",
-    min_price: "",
-    max_price: "",
-    search: "",
-  });
+  // Lo que el usuario está escribiendo/cambiando en el formulario
+  const [filters, setFilters] = useState(initialFilters);
+
+  // Lo que realmente ya se mandó al backend
+  const [appliedFilters, setAppliedFilters] = useState(initialFilters);
 
   const token = getToken();
   const tokenData = token ? parseJwt(token) : null;
@@ -63,8 +69,8 @@ function Home() {
   }, [location.search, navigate]);
 
   useEffect(() => {
-    fetchProperties(currentPage);
-  }, [currentPage, filters]);
+    fetchProperties(currentPage, appliedFilters);
+  }, [currentPage, appliedFilters]);
 
   const sanitizeProperties = (list) => {
     if (!Array.isArray(list)) return [];
@@ -83,16 +89,28 @@ function Home() {
     }));
   };
 
+  const cleanFilters = (filtersToClean) => {
+    const cleaned = {};
+
+    Object.entries(filtersToClean).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && String(value).trim() !== "") {
+        cleaned[key] = String(value).trim();
+      }
+    });
+
+    return cleaned;
+  };
+
   // 🔥 FETCH PRINCIPAL
-  // Ahora manda página + filtros al backend.
-  // Así el filtro ya no trabaja solo con la página actual.
-  const fetchProperties = async (page = 1) => {
+  // Manda página + filtros aplicados al backend.
+  // Así el filtro busca en todas las propiedades, no solo en la página actual.
+  const fetchProperties = async (page = 1, filtersToApply = appliedFilters) => {
     try {
       setLoading(true);
 
       const res = await getProperties({
         page,
-        ...filters,
+        ...cleanFilters(filtersToApply),
       });
 
       const data = Array.isArray(res) ? res : res?.results || [];
@@ -118,22 +136,35 @@ function Home() {
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
 
-    setCurrentPage(1);
-
     setFilters((prev) => ({
       ...prev,
       [name]: value,
     }));
   };
 
+  const scrollToInventory = () => {
+    inventoryRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  };
+
+  const handleSearch = () => {
+    setCurrentPage(1);
+    setAppliedFilters({ ...filters });
+    scrollToInventory();
+  };
+
   const handlePrev = () => {
     if (!prevUrl || currentPage <= 1) return;
+
     setCurrentPage((prev) => Math.max(1, prev - 1));
     scrollToInventory();
   };
 
   const handleNext = () => {
     if (!nextUrl || currentPage >= totalPages) return;
+
     setCurrentPage((prev) => Math.min(totalPages, prev + 1));
     scrollToInventory();
   };
@@ -172,13 +203,6 @@ function Home() {
     return pages;
   };
 
-  const scrollToInventory = () => {
-    inventoryRef.current?.scrollIntoView({
-      behavior: "smooth",
-      block: "start",
-    });
-  };
-
   const handleCardClick = (property) => {
     if (role === "admin") {
       navigate(`/admin/property/${property.id}`);
@@ -209,7 +233,7 @@ function Home() {
         <HomeFilterBar
           filters={filters}
           onChange={handleFilterChange}
-          onSearch={scrollToInventory}
+          onSearch={handleSearch}
         />
       </HomeHero>
 
@@ -253,10 +277,7 @@ function Home() {
             {getPageNumbers().map((page) => {
               if (typeof page === "string") {
                 return (
-                  <span
-                    key={page}
-                    className="px-2 py-2 text-sm text-gray-400"
-                  >
+                  <span key={page} className="px-2 py-2 text-sm text-gray-400">
                     ...
                   </span>
                 );

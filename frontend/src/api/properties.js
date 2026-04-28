@@ -1,17 +1,30 @@
 import axios from "./axios";
 
+// 🧹 limpiar parámetros antes de enviarlos al backend
+const cleanQueryParams = (params = {}) => {
+  return Object.fromEntries(
+    Object.entries(params)
+      .map(([key, value]) => {
+        if (typeof value === "string") {
+          return [key, value.trim()];
+        }
+
+        return [key, value];
+      })
+      .filter(([, value]) => value !== "" && value !== null && value !== undefined)
+  );
+};
+
 // 🔥 obtener propiedades
-// Ahora acepta filtros y paginación desde el backend.
+// Acepta filtros y paginación desde el backend.
 // Ejemplos:
 // getProperties()
 // getProperties({ page: 2 })
 // getProperties({ search: "casa", property_type: "house", listing_type: "sale" })
+// getProperties({ search: "hectarea" })
+// getProperties({ search: "Xocen" })
 export const getProperties = async (params = {}) => {
-  const cleanParams = Object.fromEntries(
-    Object.entries(params).filter(
-      ([, value]) => value !== "" && value !== null && value !== undefined
-    )
-  );
+  const cleanParams = cleanQueryParams(params);
 
   const response = await axios.get("/properties/", {
     params: cleanParams,
@@ -33,7 +46,7 @@ export const getSettings = async () => {
 };
 
 // ✏️ actualizar propiedad completa
-// sirve tanto para JSON normal como para FormData (por ejemplo video)
+// Sirve tanto para JSON normal como para FormData, por ejemplo video.
 export const updateProperty = async (id, data) => {
   const config =
     data instanceof FormData
@@ -87,7 +100,18 @@ export const deletePropertyImage = async (imageId) => {
   return response.data;
 };
 
+// 🔥 crear propiedad
+// Funciona con JSON normal y también con FormData si después se usa para archivos.
 export const createProperty = async (data) => {
-  const response = await axios.post("/properties/", data);
+  const config =
+    data instanceof FormData
+      ? {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      : {};
+
+  const response = await axios.post("/properties/", data, config);
   return response.data;
 };
