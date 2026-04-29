@@ -15,6 +15,7 @@ import AdminUserEdit from "./pages/AdminUserEdit";
 import MainLayout from "./layouts/MainLayout";
 import AdminRoute from "./routes/AdminRoute";
 import SellerRoute from "./routes/SellerRoute";
+import Footer from "./components/Footer";
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -116,6 +117,8 @@ function App() {
           <Route path="/login" element={<Login />} />
         </Route>
       </Routes>
+
+      <Footer />
     </BrowserRouter>
   );
 }
