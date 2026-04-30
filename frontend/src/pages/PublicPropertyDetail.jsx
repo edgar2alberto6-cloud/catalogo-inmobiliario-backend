@@ -32,26 +32,44 @@ function PublicPropertyDetail() {
           location: propertyData?.location || "",
           city: propertyData?.city || "",
           description:
-            propertyData?.description || "Información no disponible por el momento.",
-          price: propertyData?.price || null,
-          lot_price: propertyData?.lot_price || null,
+            propertyData?.description ||
+            "Información no disponible por el momento.",
+
+          // Precio principal
+          price: propertyData?.price ?? null,
+
+          // Lotes
+          lot_price: propertyData?.lot_price ?? null,
+          total_lots: propertyData?.total_lots ?? null,
+
+          // Hectáreas
+          hectare_price: propertyData?.hectare_price ?? null,
+          total_hectares: propertyData?.total_hectares ?? null,
+
+          // Clasificación
           property_type: propertyData?.property_type || "property",
           property_type_display:
             propertyData?.property_type_display || "Propiedad",
+
           listing_type: propertyData?.listing_type || "sale",
-          listing_type_display:
-            propertyData?.listing_type_display || "Venta",
+          listing_type_display: propertyData?.listing_type_display || "Venta",
+
           status: propertyData?.status || "available",
-          status_display:
-            propertyData?.status_display || "Disponible",
+          status_display: propertyData?.status_display || "Disponible",
+
           credit_type: propertyData?.credit_type || "none",
           credit_type_display: propertyData?.credit_type_display || "",
+
+          // Multimedia
           images: Array.isArray(propertyData?.images) ? propertyData.images : [],
           video: propertyData?.video || null,
           video_url: propertyData?.video_url || null,
+
+          // Información general
           measures: propertyData?.measures || "",
           specifications: propertyData?.specifications || "",
-          total_lots: propertyData?.total_lots || null,
+
+          // Puede venir vacío en público si backend lo oculta
           google_maps_link: propertyData?.google_maps_link || "",
         };
 
@@ -104,9 +122,11 @@ function PublicPropertyDetail() {
             <p className="text-sm uppercase tracking-[0.18em] text-red-500 font-semibold mb-2">
               Error de carga
             </p>
+
             <h2 className="text-2xl font-bold text-gray-900 mb-3">
               No se pudo mostrar esta propiedad
             </h2>
+
             <p className="text-gray-600">
               Intenta recargar la página o volver al catálogo.
             </p>
